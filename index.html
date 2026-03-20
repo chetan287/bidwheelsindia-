@@ -1,0 +1,2401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BidWheels India – Online Vehicle Auctions</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Razorpay Payment SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  :root {
+    --saffron: #FF6B00;
+    --saffron-light: #FF8C33;
+    --saffron-dark: #CC5500;
+    --navy: #0A1628;
+    --navy-mid: #12243E;
+    --navy-light: #1C3557;
+    --white: #FFFFFF;
+    --off-white: #F5F7FA;
+    --gray-100: #EEF1F6;
+    --gray-200: #D4DAE8;
+    --gray-400: #8A97B0;
+    --gray-600: #4A5568;
+    --green: #18A558;
+    --red: #E53E3E;
+    --gold: #F6C90E;
+    --shadow-sm: 0 2px 8px rgba(10,22,40,0.08);
+    --shadow-md: 0 8px 32px rgba(10,22,40,0.14);
+    --shadow-lg: 0 24px 64px rgba(10,22,40,0.20);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--navy);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5 { font-family: 'Rajdhani', sans-serif; font-weight: 700; }
+
+  /* ─── TICKER ─── */
+  .ticker-bar {
+    background: var(--navy);
+    color: var(--gray-200);
+    font-size: 0.78rem;
+    padding: 7px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--saffron);
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+  .ticker-inner span { margin-right: 60px; }
+  .ticker-inner .hot { color: var(--saffron); font-weight: 700; }
+  @keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+  /* ─── NAV ─── */
+  nav {
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  }
+  .nav-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 68px;
+    gap: 24px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--saffron);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: white;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+  }
+  .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 1.55rem; font-weight: 700; color: white; line-height: 1; }
+  .logo-text span { color: var(--saffron); }
+  .logo-tagline { font-size: 0.6rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 2px; }
+
+  .nav-search {
+    flex: 1;
+    max-width: 520px;
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--navy-light);
+    transition: border-color 0.2s;
+  }
+  .nav-search:focus-within { border-color: var(--saffron); }
+  .nav-search select {
+    background: var(--navy-mid);
+    color: var(--gray-200);
+    border: none;
+    padding: 0 14px;
+    font-size: 0.83rem;
+    cursor: pointer;
+    outline: none;
+    border-right: 1px solid var(--navy-light);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-search input {
+    flex: 1;
+    background: var(--navy-mid);
+    border: none;
+    padding: 0 14px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-search input::placeholder { color: var(--gray-400); }
+  .nav-search button {
+    background: var(--saffron);
+    border: none;
+    padding: 0 20px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+  }
+  .nav-search button:hover { background: var(--saffron-light); }
+
+  .nav-actions { display: flex; align-items: center; gap: 6px; }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    color: var(--gray-200);
+    text-decoration: none;
+    font-size: 0.72rem;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    border: none;
+    background: transparent;
+  }
+  .nav-btn i { font-size: 1.1rem; color: var(--gray-400); }
+  .nav-btn:hover { background: var(--navy-light); color: white; }
+  .nav-btn:hover i { color: var(--saffron); }
+  .nav-btn.cta { background: var(--saffron); color: white; font-weight: 600; padding: 10px 18px; border-radius: 8px; font-size: 0.82rem; }
+  .nav-btn.cta i { color: white; }
+  .nav-btn.cta:hover { background: var(--saffron-light); }
+
+  .nav-bottom {
+    background: var(--navy-mid);
+    border-top: 1px solid var(--navy-light);
+  }
+  .nav-bottom-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .nav-link {
+    padding: 11px 16px;
+    color: var(--gray-400);
+    font-size: 0.84rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s, border-bottom 0.2s;
+    border-bottom: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .nav-link:hover, .nav-link.active { color: white; border-bottom-color: var(--saffron); }
+  .nav-link .badge {
+    background: var(--saffron);
+    color: white;
+    font-size: 0.62rem;
+    padding: 1px 5px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, #0F1E35 100%);
+    padding: 72px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FF6B00' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,107,0,0.12) 0%, transparent 70%);
+    top: -100px;
+    right: -100px;
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-content { max-width: 700px; }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,107,0,0.15);
+    border: 1px solid rgba(255,107,0,0.35);
+    color: var(--saffron-light);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--saffron); }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--gray-400);
+    line-height: 1.7;
+    margin-bottom: 36px;
+    max-width: 540px;
+  }
+
+  .hero-search-box {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    max-width: 720px;
+  }
+  .search-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 22px;
+    background: var(--gray-100);
+    padding: 4px;
+    border-radius: 10px;
+    width: fit-content;
+  }
+  .stab {
+    padding: 8px 20px;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--gray-600);
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .stab.active { background: var(--saffron); color: white; box-shadow: 0 2px 8px rgba(255,107,0,0.35); }
+
+  .search-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .search-field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .search-field select, .search-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: var(--navy);
+    background: white;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s;
+  }
+  .search-field select:focus, .search-field input:focus { border-color: var(--saffron); }
+
+  .hero-search-actions { display: flex; gap: 12px; align-items: center; }
+  .btn-primary {
+    background: var(--saffron);
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(255,107,0,0.4);
+  }
+  .btn-primary:hover { background: var(--saffron-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,107,0,0.5); }
+  .btn-outline {
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--gray-200);
+    padding: 13px 24px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-outline:hover { border-color: var(--saffron); color: var(--saffron); }
+  .popular-searches { font-size: 0.8rem; color: var(--gray-400); }
+  .popular-searches a { color: var(--saffron); text-decoration: none; margin: 0 4px; }
+  .popular-searches a:hover { text-decoration: underline; }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 48px;
+  }
+  .hstat { text-align: left; }
+  .hstat-num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+  }
+  .hstat-num span { color: var(--saffron); }
+  .hstat-label { font-size: 0.78rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+
+  /* ─── SECTION COMMON ─── */
+  section { padding: 72px 24px; }
+  .section-inner { max-width: 1400px; margin: 0 auto; }
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    gap: 16px;
+  }
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--saffron);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    color: var(--navy);
+    line-height: 1.15;
+  }
+  .section-sub { font-size: 0.9rem; color: var(--gray-600); margin-top: 6px; }
+  .see-all {
+    color: var(--saffron);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .see-all:hover { color: var(--saffron-dark); }
+
+  /* ─── LIVE AUCTIONS ─── */
+  .auctions-bg { background: var(--off-white); }
+  .auction-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-chip {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 1.5px solid var(--gray-200);
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .filter-chip.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .filter-chip:hover:not(.active) { border-color: var(--saffron); color: var(--saffron); }
+  .filter-sort {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--gray-600);
+  }
+  .filter-sort select {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .vehicle-card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px solid var(--gray-100);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .vehicle-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--saffron);
+  }
+  .card-img {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a2744 0%, #0f1e35 100%);
+  }
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
+  .vehicle-card:hover .card-img img { transform: scale(1.04); }
+  .card-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .badge-live { background: var(--red); color: white; display: flex; align-items: center; gap: 4px; }
+  .badge-live::before { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .badge-upcoming { background: var(--gold); color: var(--navy); }
+  .badge-featured { background: var(--navy); color: white; }
+  .badge-salvage { background: rgba(0,0,0,0.7); color: #f0c040; }
+  .badge-runnable { background: var(--green); color: white; }
+
+  .card-fav {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    backdrop-filter: blur(4px);
+  }
+  .card-fav:hover { background: white; transform: scale(1.1); }
+  .card-fav i { color: var(--gray-400); font-size: 0.85rem; transition: color 0.2s; }
+  .card-fav.loved i { color: var(--red); }
+
+  .card-timer {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    background: rgba(10,22,40,0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 8px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+  }
+  .timer-label { color: var(--gray-400); }
+  .timer-val { color: white; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; }
+  .timer-val.hot { color: var(--saffron); }
+
+  .card-body { padding: 16px 18px 18px; }
+  .card-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .card-lot {
+    font-size: 0.72rem;
+    color: var(--gray-400);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-lot span { display: flex; align-items: center; gap: 4px; }
+  .card-lot i { font-size: 0.65rem; }
+
+  .card-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    margin-bottom: 14px;
+  }
+  .spec-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--gray-600);
+  }
+  .spec-item i { color: var(--gray-400); font-size: 0.7rem; width: 12px; }
+
+  .card-footer {
+    border-top: 1px solid var(--gray-100);
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bid-info {}
+  .bid-label { font-size: 0.68rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .bid-amount {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .bid-amount .currency { font-size: 0.9rem; }
+  .bids-count { font-size: 0.73rem; color: var(--gray-400); margin-top: 2px; }
+  .bid-btn {
+    background: var(--saffron);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: 'Rajdhani', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .bid-btn:hover { background: var(--saffron-dark); transform: translateY(-1px); }
+
+  /* ─── CATEGORIES ─── */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+  .cat-card {
+    background: white;
+    border: 1.5px solid var(--gray-100);
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    display: block;
+  }
+  .cat-card:hover {
+    border-color: var(--saffron);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+  }
+  .cat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 1.5rem;
+  }
+  .cat-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .cat-count { font-size: 0.75rem; color: var(--gray-400); }
+
+  /* ─── HOW IT WORKS ─── */
+  .hiw-bg { background: var(--navy); }
+  .hiw-bg .section-title { color: white; }
+  .hiw-bg .section-label { color: var(--saffron); }
+  .hiw-bg .section-sub { color: var(--gray-400); }
+  .hiw-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+    position: relative;
+  }
+  .hiw-grid::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--saffron), transparent);
+  }
+  .hiw-step { text-align: center; position: relative; }
+  .hiw-num {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255,107,0,0.12);
+    border: 2px solid var(--saffron);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--saffron);
+    position: relative;
+    z-index: 1;
+    background-clip: padding-box;
+  }
+  .hiw-num i { font-size: 1.4rem; }
+  .hiw-step h4 { font-family: 'Rajdhani', sans-serif; font-size: 1.15rem; color: white; margin-bottom: 8px; }
+  .hiw-step p { font-size: 0.84rem; color: var(--gray-400); line-height: 1.6; }
+
+  /* ─── MARQUEE BRANDS ─── */
+  .brands-bg { background: var(--off-white); padding: 40px 24px; }
+  .brands-inner { max-width: 1400px; margin: 0 auto; }
+  .brands-label { text-align: center; font-size: 0.75rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 28px; }
+  .brands-track {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  }
+  .brands-slides {
+    display: flex;
+    gap: 40px;
+    animation: slide 22s linear infinite;
+    width: max-content;
+  }
+  @keyframes slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .brand-item {
+    padding: 12px 28px;
+    background: white;
+    border-radius: 10px;
+    border: 1.5px solid var(--gray-200);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-item i { color: var(--saffron); }
+
+  /* ─── CITIES ─── */
+  .cities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .city-card {
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    height: 140px;
+    cursor: pointer;
+    transition: transform 0.25s;
+    text-decoration: none;
+  }
+  .city-card:hover { transform: scale(1.02); }
+  .city-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .city-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,22,40,0.85) 40%, rgba(10,22,40,0.2) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 16px;
+  }
+  .city-name { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; color: white; }
+  .city-count { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+
+  /* ─── SELL BANNER ─── */
+  .sell-banner {
+    background: linear-gradient(120deg, var(--saffron) 0%, #FF4500 100%);
+    border-radius: 20px;
+    padding: 56px 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sell-banner::before {
+    content: '🚗';
+    position: absolute;
+    right: 120px;
+    font-size: 12rem;
+    opacity: 0.1;
+    top: -20px;
+    transform: scaleX(-1);
+  }
+  .sell-banner h2 { font-family: 'Rajdhani', sans-serif; font-size: 2.4rem; color: white; line-height: 1.15; margin-bottom: 12px; }
+  .sell-banner p { color: rgba(255,255,255,0.85); font-size: 1rem; max-width: 480px; line-height: 1.6; }
+  .sell-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .btn-white {
+    background: white;
+    color: var(--saffron);
+    border: none;
+    padding: 13px 32px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .btn-outline-white {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.6);
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline-white:hover { border-color: white; background: rgba(255,255,255,0.1); }
+  .sell-features { flex-shrink: 0; }
+  .sell-feat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+  .sell-feat i { color: white; font-size: 1.1rem; width: 20px; }
+
+  /* ─── TESTIMONIALS ─── */
+  .testi-bg { background: var(--off-white); }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .testi-card {
+    background: white;
+    border-radius: 14px;
+    padding: 28px;
+    border: 1.5px solid var(--gray-100);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .testi-card::before {
+    content: '"';
+    font-family: Georgia, serif;
+    font-size: 5rem;
+    color: var(--saffron);
+    opacity: 0.15;
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    line-height: 1;
+  }
+  .testi-stars { color: var(--gold); font-size: 0.85rem; margin-bottom: 14px; }
+  .testi-text { font-size: 0.88rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 20px; }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    flex-shrink: 0;
+  }
+  .testi-name { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+  .testi-role { font-size: 0.75rem; color: var(--gray-400); }
+
+  /* ─── APP BANNER ─── */
+  .app-banner {
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    border-radius: 20px;
+    padding: 48px 56px;
+  }
+  .app-banner h2 { font-family: 'Rajdhani', sans-serif; font-size: 2rem; color: white; margin-bottom: 10px; }
+  .app-banner p { color: var(--gray-400); font-size: 0.9rem; max-width: 400px; line-height: 1.6; margin-bottom: 24px; }
+  .app-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+  .app-btn {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .app-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .app-btn i { font-size: 1.6rem; color: var(--navy); }
+  .app-btn-text { text-align: left; }
+  .app-btn-sub { font-size: 0.65rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; }
+  .app-btn-name { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+  .app-screens {
+    flex-shrink: 0;
+    display: flex;
+    gap: -10px;
+  }
+  .app-screen {
+    width: 160px;
+    height: 300px;
+    background: linear-gradient(135deg, var(--navy-light), var(--navy-mid));
+    border-radius: 20px;
+    border: 2px solid var(--navy-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--navy);
+    color: var(--gray-400);
+    padding: 64px 24px 0;
+    border-top: 1px solid var(--navy-light);
+  }
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 40px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--navy-light);
+  }
+  .footer-brand p { font-size: 0.84rem; line-height: 1.7; margin: 16px 0 20px; }
+  .footer-socials { display: flex; gap: 10px; }
+  .soc-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--navy-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .soc-btn:hover { background: var(--saffron); color: white; }
+  .footer-col h5 { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: white; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.5px; }
+  .footer-col a {
+    display: block;
+    color: var(--gray-400);
+    text-decoration: none;
+    font-size: 0.84rem;
+    margin-bottom: 10px;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--saffron); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    font-size: 0.78rem;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .footer-bottom a { color: var(--gray-400); text-decoration: none; }
+  .footer-bottom a:hover { color: var(--saffron); }
+  .footer-bottom-links { display: flex; gap: 20px; }
+
+  /* ─── NOTIFICATION TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--navy);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid var(--saffron);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    max-width: 320px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast i { color: var(--saffron); flex-shrink: 0; margin-top: 1px; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,22,40,0.75);
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: var(--gray-200); }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--gray-200); margin-bottom: 28px; }
+  .modal-tab {
+    padding: 10px 24px;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.05rem;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--gray-400);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .modal-tab.active { color: var(--saffron); border-bottom-color: var(--saffron); }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--saffron); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-submit { width: 100%; background: var(--saffron); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 700; font-family: 'Rajdhani', sans-serif; cursor: pointer; margin-top: 4px; transition: background 0.2s; letter-spacing: 0.5px; }
+  .modal-submit:hover { background: var(--saffron-dark); }
+  .modal-or { text-align: center; color: var(--gray-400); font-size: 0.82rem; margin: 16px 0; position: relative; }
+  .modal-or::before, .modal-or::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--gray-200); }
+  .modal-or::before { left: 0; }
+  .modal-or::after { right: 0; }
+  .google-btn { width: 100%; background: white; border: 1.5px solid var(--gray-200); padding: 12px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--navy); display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s; }
+  .google-btn:hover { background: var(--gray-100); }
+  .modal-switch { text-align: center; font-size: 0.82rem; color: var(--gray-400); margin-top: 14px; }
+  .modal-switch a { color: var(--saffron); font-weight: 600; cursor: pointer; text-decoration: none; }
+
+  /* OTP boxes */
+  .otp-box {
+    width: 48px; height: 56px;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.4rem; font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--navy); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--off-white);
+  }
+  .otp-box:focus { border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(255,107,0,0.15); background: white; }
+  .otp-box.filled { border-color: var(--saffron); background: #FFF3E8; }
+  .otp-box.error  { border-color: var(--red); background: #FFF0F0; animation: shake 0.4s; }
+  .otp-box.ok     { border-color: var(--green); background: #F0FFF4; }
+  @keyframes shake {
+    0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-5px); }
+    40%{ transform:translateX(5px); } 60%{ transform:translateX(-4px); } 80%{ transform:translateX(4px); }
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .search-grid { grid-template-columns: 1fr 1fr; }
+    .sell-banner { flex-direction: column; padding: 36px; }
+    .sell-banner::before { display: none; }
+    .app-banner { flex-direction: column; padding: 36px; }
+    .hero-stats { gap: 24px; }
+  }
+  @media (max-width: 640px) {
+    .nav-top { padding: 0 16px; }
+    .footer-top { grid-template-columns: 1fr; }
+    .search-grid { grid-template-columns: 1fr; }
+    .hero-stats { flex-wrap: wrap; gap: 16px; }
+    .hiw-grid::before { display: none; }
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--gray-100); }
+  ::-webkit-scrollbar-thumb { background: var(--saffron); border-radius: 3px; }
+
+  /* ─── ANIMATE ON SCROLL ─── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <span>🔴 <span class="hot">LIVE NOW:</span> Maruti Suzuki Swift 2020 – Current Bid ₹2,85,000</span>
+    <span>🏆 Just Sold: Toyota Innova Crysta 2019 at ₹8,40,000 in Pune</span>
+    <span>🆕 New Lots Added: 47 vehicles across Mumbai, Delhi, Bangalore</span>
+    <span>⏰ Auction Ending in 2h: Hyundai Creta 2021 – ₹5,60,000</span>
+    <span>🔴 <span class="hot">LIVE NOW:</span> Mahindra Thar 2022 – Current Bid ₹9,20,000</span>
+    <span>📣 Weekend Special Auction: 200+ Salvage Vehicles | Saturday 10 AM IST</span>
+    <span>🔴 <span class="hot">LIVE NOW:</span> Maruti Suzuki Swift 2020 – Current Bid ₹2,85,000</span>
+    <span>🏆 Just Sold: Toyota Innova Crysta 2019 at ₹8,40,000 in Pune</span>
+    <span>🆕 New Lots Added: 47 vehicles across Mumbai, Delhi, Bangalore</span>
+    <span>⏰ Auction Ending in 2h: Hyundai Creta 2021 – ₹5,60,000</span>
+    <span>🔴 <span class="hot">LIVE NOW:</span> Mahindra Thar 2022 – Current Bid ₹9,20,000</span>
+    <span>📣 Weekend Special Auction: 200+ Salvage Vehicles | Saturday 10 AM IST</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-top">
+    <a href="#" class="logo">
+      <div class="logo-icon">BW</div>
+      <div>
+        <div class="logo-text">Bid<span>Wheels</span></div>
+        <div class="logo-tagline">India's Vehicle Auction</div>
+      </div>
+    </a>
+
+    <div class="nav-search">
+      <select>
+        <option>All Types</option>
+        <option>Cars</option>
+        <option>SUVs</option>
+        <option>Bikes</option>
+        <option>Trucks</option>
+        <option>Buses</option>
+      </select>
+      <input type="text" placeholder="Search by make, model, lot# or city…">
+      <button><i class="fas fa-search"></i></button>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="showToast('Track your watched lots from your dashboard.')">
+        <i class="fas fa-heart"></i>
+        <span>Watchlist</span>
+      </button>
+      <button class="nav-btn" onclick="showToast('View all your active and past bids.')">
+        <i class="fas fa-gavel"></i>
+        <span>My Bids</span>
+      </button>
+      <button class="nav-btn" onclick="openModal()">
+        <i class="fas fa-user"></i>
+        <span>Sign In</span>
+      </button>
+      <button class="nav-btn cta" onclick="openModal('register')">
+        <i class="fas fa-user-plus"></i>
+        Register Free
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <div class="nav-bottom-inner">
+      <a href="#auctions" class="nav-link active"><i class="fas fa-fire"></i> Live Auctions <span class="badge">147</span></a>
+      <a href="#" class="nav-link">Upcoming Auctions</a>
+      <a href="#" class="nav-link">Buy Now</a>
+      <a href="#" class="nav-link">Sell Your Vehicle</a>
+      <a href="#" class="nav-link">Salvage Vehicles</a>
+      <a href="#" class="nav-link">Motorcycles</a>
+      <a href="#" class="nav-link">Commercial</a>
+      <a href="#" class="nav-link">Insurance Claim</a>
+      <a href="#" class="nav-link" style="margin-left:auto;">Help <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge"><i class="fas fa-bolt"></i> India's Fastest Growing Vehicle Auction</div>
+      <h1>Bid, Win &<br><span>Own Your</span> Dream Ride</h1>
+      <p>Browse thousands of cars, SUVs, bikes, and commercial vehicles from insurance salvage, repossession, and fleet auctions across India. New lots every day.</p>
+    </div>
+
+    <div class="hero-search-box fade-in">
+      <div class="search-tabs">
+        <button class="stab active">🚗 Cars & SUVs</button>
+        <button class="stab">🏍️ Bikes</button>
+        <button class="stab">🚛 Commercial</button>
+        <button class="stab">🔌 Electric</button>
+      </div>
+      <div class="search-grid">
+        <div class="search-field">
+          <label>Make / Brand</label>
+          <select>
+            <option value="">All Brands</option>
+            <option>Maruti Suzuki</option>
+            <option>Hyundai</option>
+            <option>Tata Motors</option>
+            <option>Mahindra</option>
+            <option>Honda</option>
+            <option>Toyota</option>
+            <option>Kia</option>
+            <option>Skoda</option>
+            <option>Volkswagen</option>
+            <option>MG Motor</option>
+            <option>Renault</option>
+            <option>Nissan</option>
+            <option>Ford</option>
+          </select>
+        </div>
+        <div class="search-field">
+          <label>City / Location</label>
+          <select>
+            <option value="">All India</option>
+            <option>Mumbai, MH</option>
+            <option>Delhi NCR</option>
+            <option>Bengaluru, KA</option>
+            <option>Chennai, TN</option>
+            <option>Hyderabad, TS</option>
+            <option>Pune, MH</option>
+            <option>Kolkata, WB</option>
+            <option>Ahmedabad, GJ</option>
+            <option>Jaipur, RJ</option>
+            <option>Nashik, MH</option>
+            <option>Nagpur, MH</option>
+            <option>Lucknow, UP</option>
+          </select>
+        </div>
+        <div class="search-field">
+          <label>Max Budget (₹)</label>
+          <select>
+            <option value="">Any Price</option>
+            <option>Under ₹1 Lakh</option>
+            <option>₹1 – 3 Lakh</option>
+            <option>₹3 – 5 Lakh</option>
+            <option>₹5 – 10 Lakh</option>
+            <option>₹10 – 20 Lakh</option>
+            <option>Above ₹20 Lakh</option>
+          </select>
+        </div>
+      </div>
+      <div class="hero-search-actions">
+        <button class="btn-primary" onclick="showToast('Showing results for your search criteria…')"><i class="fas fa-search"></i> Find Vehicles</button>
+        <button class="btn-outline" onclick="showToast('Advanced filters opened.')"><i class="fas fa-sliders-h"></i> Advanced Filters</button>
+        <div class="popular-searches" style="margin-left:12px;">
+          Popular: <a href="#">Swift</a> <a href="#">Creta</a> <a href="#">Thar</a> <a href="#">Nexon EV</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-num">24<span>K+</span></div>
+        <div class="hstat-label">Vehicles Auctioned</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">1<span>.8L+</span></div>
+        <div class="hstat-label">Registered Bidders</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">38</div>
+        <div class="hstat-label">Cities Covered</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">96<span>%</span></div>
+        <div class="hstat-label">Seller Satisfaction</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BRANDS MARQUEE -->
+<div class="brands-bg">
+  <div class="brands-inner">
+    <div class="brands-label">Trusted by buyers & sellers of all major brands</div>
+    <div class="brands-track">
+      <div class="brands-slides" id="brandsSlides">
+        <div class="brand-item"><i class="fas fa-car"></i> Maruti Suzuki</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Hyundai</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Tata Motors</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Mahindra</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Honda</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Toyota</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Kia</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Skoda</div>
+        <div class="brand-item"><i class="fas fa-car"></i> MG Motor</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Volkswagen</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Renault</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Hero MotoCorp</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Bajaj</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Royal Enfield</div>
+        <!-- Duplicate for seamless loop -->
+        <div class="brand-item"><i class="fas fa-car"></i> Maruti Suzuki</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Hyundai</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Tata Motors</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Mahindra</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Honda</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Toyota</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Kia</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Skoda</div>
+        <div class="brand-item"><i class="fas fa-car"></i> MG Motor</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Volkswagen</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Renault</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Hero MotoCorp</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Bajaj</div>
+        <div class="brand-item"><i class="fas fa-car"></i> Royal Enfield</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE AUCTIONS -->
+<section class="auctions-bg" id="auctions">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <div class="section-label"><i class="fas fa-circle" style="color:var(--red);font-size:0.6rem;animation:pulse 1s infinite;"></i> Live Right Now</div>
+        <h2 class="section-title">Active Auctions</h2>
+        <div class="section-sub">147 lots closing in the next 24 hours — bid fast!</div>
+      </div>
+      <a href="#" class="see-all">View All Auctions <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <div class="auction-filters">
+      <button class="filter-chip active">All</button>
+      <button class="filter-chip">Cars</button>
+      <button class="filter-chip">SUVs</button>
+      <button class="filter-chip">Bikes</button>
+      <button class="filter-chip">Electric</button>
+      <button class="filter-chip">Salvage</button>
+      <button class="filter-chip">Runnable</button>
+      <button class="filter-chip">Commercial</button>
+      <div class="filter-sort">
+        Sort by:
+        <select>
+          <option>Ending Soon</option>
+          <option>Lowest Bid</option>
+          <option>Highest Bid</option>
+          <option>Newest Listed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="vehicles-grid">
+
+      <!-- Card 1 -->
+      <div class="vehicle-card fade-in" onclick="showToast('Opening lot details for Hyundai Creta…')">
+        <div class="card-img" style="background:linear-gradient(135deg,#1a3a2a,#0d1f16);">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">🚙</div>
+          <div class="card-badges">
+            <span class="badge badge-live">LIVE</span>
+            <span class="badge badge-runnable">Runnable</span>
+          </div>
+          <button class="card-fav" onclick="event.stopPropagation();toggleFav(this)"><i class="far fa-heart"></i></button>
+          <div class="card-timer">
+            <span class="timer-label">Ends in</span>
+            <span class="timer-val hot" id="t1">01:47:22</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">2021 Hyundai Creta SX</div>
+          <div class="card-lot">
+            <span><i class="fas fa-hashtag"></i> LOT #BW-2024-0871</span>
+            <span><i class="fas fa-map-marker-alt"></i> Pune, MH</span>
+          </div>
+          <div class="card-specs">
+            <div class="spec-item"><i class="fas fa-tachometer-alt"></i> 38,400 km</div>
+            <div class="spec-item"><i class="fas fa-gas-pump"></i> Petrol</div>
+            <div class="spec-item"><i class="fas fa-palette"></i> Titan Grey</div>
+            <div class="spec-item"><i class="fas fa-cogs"></i> Automatic</div>
+          </div>
+          <div class="card-footer">
+            <div class="bid-info">
+              <div class="bid-label">Current Bid</div>
+              <div class="bid-amount"><span class="currency">₹</span>5,60,000</div>
+              <div class="bids-count">28 bids • Est. ₹7.2L</div>
+            </div>
+            <button class="bid-btn" onclick="event.stopPropagation();payForLot('BW-2024-0871','2021 Hyundai Creta SX',570000)">Place Bid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="vehicle-card fade-in" onclick="showToast('Opening lot details for Mahindra Thar…')">
+        <div class="card-img" style="background:linear-gradient(135deg,#2a1a0d,#1f0d06);">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">🚙</div>
+          <div class="card-badges">
+            <span class="badge badge-live">LIVE</span>
+            <span class="badge badge-featured" style="background:var(--gold);color:var(--navy);">Featured</span>
+          </div>
+          <button class="card-fav loved" onclick="event.stopPropagation();toggleFav(this)"><i class="fas fa-heart"></i></button>
+          <div class="card-timer">
+            <span class="timer-label">Ends in</span>
+            <span class="timer-val hot" id="t2">00:23:08</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">2022 Mahindra Thar LX 4x4</div>
+          <div class="card-lot">
+            <span><i class="fas fa-hashtag"></i> LOT #BW-2024-0452</span>
+            <span><i class="fas fa-map-marker-alt"></i> Mumbai, MH</span>
+          </div>
+          <div class="card-specs">
+            <div class="spec-item"><i class="fas fa-tachometer-alt"></i> 22,100 km</div>
+            <div class="spec-item"><i class="fas fa-gas-pump"></i> Diesel</div>
+            <div class="spec-item"><i class="fas fa-palette"></i> Galaxy Grey</div>
+            <div class="spec-item"><i class="fas fa-cogs"></i> Manual</div>
+          </div>
+          <div class="card-footer">
+            <div class="bid-info">
+              <div class="bid-label">Current Bid</div>
+              <div class="bid-amount"><span class="currency">₹</span>9,20,000</div>
+              <div class="bids-count">54 bids • Est. ₹13.5L</div>
+            </div>
+            <button class="bid-btn" onclick="event.stopPropagation();payForLot('BW-2024-0452','2022 Mahindra Thar LX 4x4',930000)">Place Bid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="vehicle-card fade-in" onclick="showToast('Opening lot details for Maruti Swift…')">
+        <div class="card-img" style="background:linear-gradient(135deg,#0d1a2a,#06101f);">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">🚗</div>
+          <div class="card-badges">
+            <span class="badge badge-live">LIVE</span>
+            <span class="badge badge-salvage">Salvage</span>
+          </div>
+          <button class="card-fav" onclick="event.stopPropagation();toggleFav(this)"><i class="far fa-heart"></i></button>
+          <div class="card-timer">
+            <span class="timer-label">Ends in</span>
+            <span class="timer-val" id="t3">03:14:55</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">2020 Maruti Swift ZXi+</div>
+          <div class="card-lot">
+            <span><i class="fas fa-hashtag"></i> LOT #BW-2024-1103</span>
+            <span><i class="fas fa-map-marker-alt"></i> Delhi, DL</span>
+          </div>
+          <div class="card-specs">
+            <div class="spec-item"><i class="fas fa-tachometer-alt"></i> 61,800 km</div>
+            <div class="spec-item"><i class="fas fa-gas-pump"></i> Petrol</div>
+            <div class="spec-item"><i class="fas fa-palette"></i> Pearl White</div>
+            <div class="spec-item"><i class="fas fa-cogs"></i> Manual</div>
+          </div>
+          <div class="card-footer">
+            <div class="bid-info">
+              <div class="bid-label">Current Bid</div>
+              <div class="bid-amount"><span class="currency">₹</span>2,85,000</div>
+              <div class="bids-count">14 bids • Est. ₹4.8L</div>
+            </div>
+            <button class="bid-btn" onclick="event.stopPropagation();payForLot('BW-2024-1103','2020 Maruti Swift ZXi+',295000)">Place Bid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="vehicle-card fade-in" onclick="showToast('Opening lot details for Tata Nexon EV…')">
+        <div class="card-img" style="background:linear-gradient(135deg,#0a2a1a,#061f12);">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">⚡</div>
+          <div class="card-badges">
+            <span class="badge" style="background:#18A558;color:white;">EV</span>
+            <span class="badge badge-runnable">Runnable</span>
+          </div>
+          <button class="card-fav" onclick="event.stopPropagation();toggleFav(this)"><i class="far fa-heart"></i></button>
+          <div class="card-timer">
+            <span class="timer-label">Upcoming</span>
+            <span class="timer-val">Tomorrow 10 AM</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">2023 Tata Nexon EV Max</div>
+          <div class="card-lot">
+            <span><i class="fas fa-hashtag"></i> LOT #BW-2024-0998</span>
+            <span><i class="fas fa-map-marker-alt"></i> Bengaluru, KA</span>
+          </div>
+          <div class="card-specs">
+            <div class="spec-item"><i class="fas fa-tachometer-alt"></i> 18,200 km</div>
+            <div class="spec-item"><i class="fas fa-bolt"></i> Electric</div>
+            <div class="spec-item"><i class="fas fa-palette"></i> Pristine White</div>
+            <div class="spec-item"><i class="fas fa-cogs"></i> Automatic</div>
+          </div>
+          <div class="card-footer">
+            <div class="bid-info">
+              <div class="bid-label">Opening Bid</div>
+              <div class="bid-amount"><span class="currency">₹</span>9,50,000</div>
+              <div class="bids-count">Auction not started • Est. ₹14L</div>
+            </div>
+            <button class="bid-btn" style="background:var(--navy);" onclick="event.stopPropagation();showToast('Set a pre-bid for Tata Nexon EV! You will be notified.')">Pre-Bid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="vehicle-card fade-in" onclick="showToast('Opening lot details for Toyota Innova Crysta…')">
+        <div class="card-img" style="background:linear-gradient(135deg,#2a200d,#1f160a);">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">🚐</div>
+          <div class="card-badges">
+            <span class="badge badge-live">LIVE</span>
+            <span class="badge badge-runnable">Runnable</span>
+          </div>
+          <button class="card-fav" onclick="event.stopPropagation();toggleFav(this)"><i class="far fa-heart"></i></button>
+          <div class="card-timer">
+            <span class="timer-label">Ends in</span>
+            <span class="timer-val hot" id="t5">00:08:34</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">2019 Toyota Innova Crysta 2.4 GX</div>
+          <div class="card-lot">
+            <span><i class="fas fa-hashtag"></i> LOT #BW-2024-0741</span>
+            <span><i class="fas fa-map-marker-alt"></i> Hyderabad, TS</span>
+          </div>
+          <div class="card-specs">
+            <div class="spec-item"><i class="fas fa-tachometer-alt"></i> 84,000 km</div>
+            <div class="spec-item"><i class="fas fa-gas-pump"></i> Diesel</div>
+            <div class="spec-item"><i class="fas fa-palette"></i> Silver</div>
+            <div class="spec-item"><i class="fas fa-cogs"></i> Manual</div>
+          </div>
+          <div class="card-footer">
+            <div class="bid-info">
+              <div class="bid-label">Current Bid</div>
+              <div class="bid-amount"><span class="currency">₹</span>8,40,000</div>
+              <div class="bids-count">41 bids • Est. ₹10.5L</div>
+            </div>
+            <button class="bid-btn" onclick="event.stopPropagation();payForLot('BW-2024-0741','2019 Toyota Innova Crysta 2.4 GX',850000)">Place Bid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="vehicle-card fade-in" onclick="showToast('Opening lot details for Royal Enfield…')">
+        <div class="card-img" style="background:linear-gradient(135deg,#1a0a2a,#0f061f);">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">🏍️</div>
+          <div class="card-badges">
+            <span class="badge badge-live">LIVE</span>
+          </div>
+          <button class="card-fav" onclick="event.stopPropagation();toggleFav(this)"><i class="far fa-heart"></i></button>
+          <div class="card-timer">
+            <span class="timer-label">Ends in</span>
+            <span class="timer-val" id="t6">05:22:11</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">2022 Royal Enfield Meteor 350</div>
+          <div class="card-lot">
+            <span><i class="fas fa-hashtag"></i> LOT #BW-2024-1244</span>
+            <span><i class="fas fa-map-marker-alt"></i> Chennai, TN</span>
+          </div>
+          <div class="card-specs">
+            <div class="spec-item"><i class="fas fa-tachometer-alt"></i> 11,600 km</div>
+            <div class="spec-item"><i class="fas fa-gas-pump"></i> Petrol</div>
+            <div class="spec-item"><i class="fas fa-palette"></i> Fireball</div>
+            <div class="spec-item"><i class="fas fa-cogs"></i> Manual</div>
+          </div>
+          <div class="card-footer">
+            <div class="bid-info">
+              <div class="bid-label">Current Bid</div>
+              <div class="bid-amount"><span class="currency">₹</span>1,15,000</div>
+              <div class="bids-count">9 bids • Est. ₹1.7L</div>
+            </div>
+            <button class="bid-btn" onclick="event.stopPropagation();payForLot('BW-2024-1244','2022 Royal Enfield Meteor 350',120000)">Place Bid</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section>
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Browse by Type</div>
+        <h2 class="section-title">Vehicle Categories</h2>
+      </div>
+      <a href="#" class="see-all">All Categories <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="categories-grid">
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#FFF3E8;color:var(--saffron);">🚗</div>
+        <div class="cat-name">Hatchbacks</div>
+        <div class="cat-count">2,841 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#E8F5E9;color:var(--green);">🚙</div>
+        <div class="cat-name">SUVs & MUVs</div>
+        <div class="cat-count">3,124 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#E8EAF6;color:#3949AB;">🚕</div>
+        <div class="cat-name">Sedans</div>
+        <div class="cat-count">1,987 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#FFF8E1;color:#F9A825;">⚡</div>
+        <div class="cat-name">Electric Vehicles</div>
+        <div class="cat-count">412 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#FCE4EC;color:#E91E63;">🏍️</div>
+        <div class="cat-name">Motorcycles</div>
+        <div class="cat-count">4,302 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#E0F2F1;color:#00796B;">🛵</div>
+        <div class="cat-name">Scooters</div>
+        <div class="cat-count">2,198 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#EDE7F6;color:#7B1FA2;">🚚</div>
+        <div class="cat-name">Trucks & LCVs</div>
+        <div class="cat-count">986 vehicles</div>
+      </a>
+      <a href="#" class="cat-card fade-in">
+        <div class="cat-icon" style="background:#E3F2FD;color:#1565C0;">🚌</div>
+        <div class="cat-name">Buses</div>
+        <div class="cat-count">347 vehicles</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hiw-bg">
+  <div class="section-inner">
+    <div style="text-align:center;">
+      <div class="section-label">Simple & Transparent</div>
+      <h2 class="section-title" style="color:white;">How BidWheels Works</h2>
+      <div class="section-sub">From registration to ownership in 4 easy steps</div>
+    </div>
+    <div class="hiw-grid">
+      <div class="hiw-step fade-in">
+        <div class="hiw-num"><i class="fas fa-user-check"></i></div>
+        <h4>Register & Verify</h4>
+        <p>Sign up free with your Aadhaar or PAN. Complete KYC in 2 minutes and get instant bidding access.</p>
+      </div>
+      <div class="hiw-step fade-in">
+        <div class="hiw-num"><i class="fas fa-search"></i></div>
+        <h4>Browse & Inspect</h4>
+        <p>Explore 360° photos, condition reports, RTO history & inspection videos for every lot.</p>
+      </div>
+      <div class="hiw-step fade-in">
+        <div class="hiw-num"><i class="fas fa-gavel"></i></div>
+        <h4>Bid & Win</h4>
+        <p>Place live bids or set max auto-bids. Get real-time SMS & app alerts on every update.</p>
+      </div>
+      <div class="hiw-step fade-in">
+        <div class="hiw-num"><i class="fas fa-file-contract"></i></div>
+        <h4>Pay & Own</h4>
+        <p>Pay via UPI, NEFT, or loan. RC transfer & delivery arranged within 7 working days.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SELL BANNER -->
+<section>
+  <div class="section-inner">
+    <div class="sell-banner fade-in">
+      <div>
+        <h2>Get the Best Price<br>for Your Vehicle</h2>
+        <p>List your car, bike, or commercial vehicle on India's fastest-growing auction platform. Reach 1.8 lakh+ verified buyers across 38 cities.</p>
+        <div class="sell-actions">
+          <button class="btn-white" onclick="showToast('Seller registration started. Our team will contact you shortly.')">Sell My Vehicle</button>
+          <button class="btn-outline-white" onclick="showToast('Free vehicle valuation report will be emailed to you.')">Free Valuation</button>
+        </div>
+      </div>
+      <div class="sell-features">
+        <div class="sell-feat"><i class="fas fa-check-circle"></i> No commission up to ₹5 Lakh</div>
+        <div class="sell-feat"><i class="fas fa-check-circle"></i> RC transfer assistance</div>
+        <div class="sell-feat"><i class="fas fa-check-circle"></i> Payment within 48 hours</div>
+        <div class="sell-feat"><i class="fas fa-check-circle"></i> Free pickup from your location</div>
+        <div class="sell-feat"><i class="fas fa-check-circle"></i> Insurance & legal support</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CITIES -->
+<section class="auctions-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Pan India Coverage</div>
+        <h2 class="section-title">Auctions Near You</h2>
+        <div class="section-sub">Active auction yards across major cities</div>
+      </div>
+      <a href="#" class="see-all">All Cities <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="cities-grid">
+      <a href="#" class="city-card fade-in">
+        <div class="city-bg" style="background:linear-gradient(135deg,#1a2744,#0f1e35);display:flex;align-items:center;justify-content:center;font-size:4rem;">🏙️</div>
+        <div class="city-overlay">
+          <div class="city-name">Mumbai</div>
+          <div class="city-count">348 active lots</div>
+        </div>
+      </a>
+      <a href="#" class="city-card fade-in">
+        <div class="city-bg" style="background:linear-gradient(135deg,#1a1a2a,#0f0f1f);display:flex;align-items:center;justify-content:center;font-size:4rem;">🏛️</div>
+        <div class="city-overlay">
+          <div class="city-name">Delhi NCR</div>
+          <div class="city-count">521 active lots</div>
+        </div>
+      </a>
+      <a href="#" class="city-card fade-in">
+        <div class="city-bg" style="background:linear-gradient(135deg,#0a2a1a,#061f12);display:flex;align-items:center;justify-content:center;font-size:4rem;">🌆</div>
+        <div class="city-overlay">
+          <div class="city-name">Bengaluru</div>
+          <div class="city-count">412 active lots</div>
+        </div>
+      </a>
+      <a href="#" class="city-card fade-in">
+        <div class="city-bg" style="background:linear-gradient(135deg,#2a1a0a,#1f1206);display:flex;align-items:center;justify-content:center;font-size:4rem;">🌃</div>
+        <div class="city-overlay">
+          <div class="city-name">Chennai</div>
+          <div class="city-count">287 active lots</div>
+        </div>
+      </a>
+      <a href="#" class="city-card fade-in">
+        <div class="city-bg" style="background:linear-gradient(135deg,#2a0a1a,#1f0612);display:flex;align-items:center;justify-content:center;font-size:4rem;">🏢</div>
+        <div class="city-overlay">
+          <div class="city-name">Hyderabad</div>
+          <div class="city-count">319 active lots</div>
+        </div>
+      </a>
+      <a href="#" class="city-card fade-in">
+        <div class="city-bg" style="background:linear-gradient(135deg,#1a2a0a,#121f06);display:flex;align-items:center;justify-content:center;font-size:4rem;">🌉</div>
+        <div class="city-overlay">
+          <div class="city-name">Pune</div>
+          <div class="city-count">198 active lots</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Real Stories</div>
+        <h2 class="section-title">What Our Members Say</h2>
+      </div>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card fade-in">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Bought a Hyundai Creta at 40% below market price. The inspection report was detailed and accurate, and the RC transfer was done within 5 days. Absolutely transparent process.</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,var(--saffron),#FF4500);">RK</div>
+          <div>
+            <div class="testi-name">Rajesh Kumar</div>
+            <div class="testi-role">Buyer • Delhi NCR</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-in">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Sold 12 vehicles from our fleet through BidWheels this year. The bidding drives prices up much higher than any dealer would offer. Payment always within 2 days.</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,var(--green),#0D7A3E);">SJ</div>
+          <div>
+            <div class="testi-name">Suresh Jain</div>
+            <div class="testi-role">Fleet Seller • Mumbai</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-in">
+        <div class="testi-stars">★★★★☆</div>
+        <p class="testi-text">As a car dealer in Bengaluru, I source at least 8-10 vehicles monthly from BidWheels. The salvage lots are genuine, documents are clear. Highly recommended for the trade.</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#3949AB,#1A237E);">AP</div>
+          <div>
+            <div class="testi-name">Anand Prakash</div>
+            <div class="testi-role">Dealer • Bengaluru</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APP BANNER -->
+<section style="background:white;">
+  <div class="section-inner">
+    <div class="app-banner fade-in">
+      <div>
+        <h2>Bid on the Go with<br>the BidWheels App</h2>
+        <p>Get real-time lot alerts, place bids with one tap, track your watchlist, and receive instant payment notifications — all from your phone.</p>
+        <div class="app-btns">
+          <button class="app-btn" onclick="showToast('Redirecting to Google Play Store…')">
+            <i class="fab fa-google-play"></i>
+            <div class="app-btn-text">
+              <div class="app-btn-sub">Get it on</div>
+              <div class="app-btn-name">Google Play</div>
+            </div>
+          </button>
+          <button class="app-btn" onclick="showToast('Redirecting to Apple App Store…')">
+            <i class="fab fa-apple"></i>
+            <div class="app-btn-text">
+              <div class="app-btn-sub">Download on the</div>
+              <div class="app-btn-name">App Store</div>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="app-screens">
+        <div class="app-screen">📱</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-icon">BW</div>
+          <div>
+            <div class="logo-text">Bid<span>Wheels</span></div>
+            <div class="logo-tagline" style="color:var(--gray-400);">India's Vehicle Auction</div>
+          </div>
+        </div>
+        <p>India's most trusted online vehicle auction platform. Connecting buyers and sellers across 38 cities with transparency, speed, and the best prices.</p>
+        <div class="footer-socials">
+          <a href="#" class="soc-btn"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Buy Vehicles</h5>
+        <a href="#">Live Auctions</a>
+        <a href="#">Upcoming Auctions</a>
+        <a href="#">Buy Now Listings</a>
+        <a href="#">Salvage Vehicles</a>
+        <a href="#">Electric Vehicles</a>
+        <a href="#">Commercial Vehicles</a>
+        <a href="#">How to Bid</a>
+      </div>
+      <div class="footer-col">
+        <h5>Sell Vehicles</h5>
+        <a href="#">List Your Vehicle</a>
+        <a href="#">Free Valuation</a>
+        <a href="#">Fleet & Corporate</a>
+        <a href="#">Insurance Partners</a>
+        <a href="#">Bank Repossessions</a>
+        <a href="#">Seller FAQs</a>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <a href="#">Vehicle Inspection</a>
+        <a href="#">RC Transfer</a>
+        <a href="#">Vehicle Loan</a>
+        <a href="#">Insurance</a>
+        <a href="#">Transportation</a>
+        <a href="#">Document Support</a>
+        <a href="#">RTO Assistance</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact Us</h5>
+        <a href="#"><i class="fas fa-phone" style="margin-right:6px;"></i> 1800-103-7890</a>
+        <a href="#"><i class="fas fa-envelope" style="margin-right:6px;"></i> <span class="__cf_email__" data-cfemail="15666065657a676155777c71627d707079663b7c7b">[email&#160;protected]</span></a>
+        <a href="#"><i class="fab fa-whatsapp" style="margin-right:6px;"></i> WhatsApp Us</a>
+        <div style="margin-top:16px;font-size:0.78rem;line-height:1.6;">
+          Mon–Sat: 9 AM – 7 PM IST<br>
+          <span style="color:white;font-weight:600;">GST: 27AABCB1234M1Z5</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2024 BidWheels India Pvt. Ltd. All rights reserved. CIN: U74999MH2020PTC123456</div>
+      <div class="footer-bottom-links">
+        <a href="#">Terms of Use</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Grievance Officer</a>
+        <a href="#">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="modal-tab" onclick="switchTab('register')">Register</button>
+    </div>
+    <!-- Login -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" placeholder="+91 98765 43210">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="Enter your password">
+      </div>
+      <button class="modal-submit" onclick="showToast('Welcome back! Logged in successfully.');closeModal()">Sign In</button>
+      <div class="modal-or">or</div>
+      <button class="google-btn" onclick="showToast('Google authentication coming soon.');closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <div class="modal-switch">Forgot password? <a href="#">Reset via OTP</a></div>
+    </div>
+    <!-- Register -->
+    <div id="registerForm" style="display:none;">
+
+      <!-- Step 1: Details -->
+      <div id="regStep1">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="regFirstName" placeholder="Rahul">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="regLastName" placeholder="Sharma">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <div style="display:flex;gap:8px;">
+            <input type="tel" id="regMobile" placeholder="98765 43210" maxlength="10" style="flex:1;">
+            <button id="sendOtpBtn" onclick="sendOTP()" style="background:var(--saffron);color:white;border:none;padding:0 18px;border-radius:10px;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background 0.2s;" onmouseover="this.style.background='var(--saffron-dark)'" onmouseout="this.style.background='var(--saffron)'">Send OTP</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" placeholder="rahul@gmail.com">
+        </div>
+        <div class="form-group">
+          <label>I am a</label>
+          <select id="regType">
+            <option>Individual Buyer</option>
+            <option>Car Dealer</option>
+            <option>Insurance Company</option>
+            <option>Fleet Owner / Seller</option>
+            <option>Bank / NBFC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>City</label>
+          <select id="regCity">
+            <option>Mumbai</option>
+            <option>Delhi NCR</option>
+            <option>Bengaluru</option>
+            <option>Chennai</option>
+            <option>Hyderabad</option>
+            <option>Pune</option>
+            <option>Nashik</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="modal-switch" style="margin-top:10px;">Already registered? <a href="#" onclick="switchTab('login')">Sign In</a></div>
+      </div>
+
+      <!-- Step 2: OTP Verify -->
+      <div id="regStep2" style="display:none;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="width:64px;height:64px;background:#FFF3E8;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.8rem;">📱</div>
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;color:var(--navy);margin-bottom:6px;">Verify Your Mobile</h3>
+          <p style="font-size:0.85rem;color:var(--gray-400);">We've sent a 6-digit OTP to <strong id="otpMobileDisplay" style="color:var(--navy);"></strong></p>
+        </div>
+
+        <!-- OTP boxes -->
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;">
+          <input class="otp-box" id="otp0" maxlength="1" type="text" inputmode="numeric" oninput="otpInput(0)" onkeydown="otpKey(event,0)">
+          <input class="otp-box" id="otp1" maxlength="1" type="text" inputmode="numeric" oninput="otpInput(1)" onkeydown="otpKey(event,1)">
+          <input class="otp-box" id="otp2" maxlength="1" type="text" inputmode="numeric" oninput="otpInput(2)" onkeydown="otpKey(event,2)">
+          <input class="otp-box" id="otp3" maxlength="1" type="text" inputmode="numeric" oninput="otpInput(3)" onkeydown="otpKey(event,3)">
+          <input class="otp-box" id="otp4" maxlength="1" type="text" inputmode="numeric" oninput="otpInput(4)" onkeydown="otpKey(event,4)">
+          <input class="otp-box" id="otp5" maxlength="1" type="text" inputmode="numeric" oninput="otpInput(5)" onkeydown="otpKey(event,5)">
+        </div>
+
+        <div id="otpError" style="display:none;background:#FFF0F0;border:1px solid #FFCCCC;color:#C0392B;border-radius:8px;padding:10px 14px;font-size:0.83rem;margin-bottom:14px;text-align:center;">
+          ❌ Incorrect OTP. Please try again.
+        </div>
+        <div id="otpSuccess" style="display:none;background:#F0FFF4;border:1px solid #C6F6D5;color:#276749;border-radius:8px;padding:10px 14px;font-size:0.83rem;margin-bottom:14px;text-align:center;">
+          ✅ OTP Verified! Creating your account…
+        </div>
+
+        <button class="modal-submit" id="verifyBtn" onclick="verifyOTP()">Verify & Create Account</button>
+
+        <div style="text-align:center;margin-top:14px;font-size:0.82rem;color:var(--gray-400);">
+          Didn't receive it? <a id="resendLink" href="#" onclick="resendOTP()" style="color:var(--saffron);font-weight:600;text-decoration:none;">Resend OTP</a>
+          <span id="resendTimer" style="color:var(--gray-400);"></span>
+        </div>
+        <div style="text-align:center;margin-top:10px;">
+          <a href="#" onclick="goBackToStep1()" style="color:var(--gray-400);font-size:0.8rem;text-decoration:none;">← Change mobile number</a>
+        </div>
+
+        <!-- DEV HINT -->
+        <div id="devHint" style="margin-top:16px;background:var(--gray-100);border-radius:8px;padding:10px 14px;font-size:0.78rem;color:var(--gray-600);text-align:center;">
+          🔐 Demo OTP: <strong id="devOtpDisplay" style="color:var(--saffron);font-size:1rem;letter-spacing:3px;"></strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="fas fa-info-circle"></i>
+  <span id="toastMsg"></span>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // ─── FILTER CHIPS ───
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.closest('.auction-filters').querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  // ─── SEARCH TABS ───
+  document.querySelectorAll('.stab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.search-tabs').querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ─── TOAST ───
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  // ─── MODAL ───
+  function openModal(tab) {
+    document.getElementById('authModal').classList.add('open');
+    if (tab === 'register') switchTab('register');
+    else switchTab('login');
+  }
+  function closeModal() {
+    document.getElementById('authModal').classList.remove('open');
+  }
+  document.getElementById('authModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  function switchTab(tab) {
+    const tabs = document.querySelectorAll('.modal-tab');
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+    tabs[0].classList.toggle('active', tab === 'login');
+    tabs[1].classList.toggle('active', tab === 'register');
+  }
+
+  // ─── FAV TOGGLE ───
+  function toggleFav(btn) {
+    btn.classList.toggle('loved');
+    const icon = btn.querySelector('i');
+    if (btn.classList.contains('loved')) {
+      icon.className = 'fas fa-heart';
+      showToast('Added to your Watchlist!');
+    } else {
+      icon.className = 'far fa-heart';
+      showToast('Removed from Watchlist.');
+    }
+  }
+
+  // ─── LIVE TIMERS ───
+  function parseTime(str) {
+    const p = str.split(':').map(Number);
+    return p[0] * 3600 + p[1] * 60 + p[2];
+  }
+  function formatTime(s) {
+    if (s <= 0) return '00:00:00';
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    return [h, m, sec].map(v => String(v).padStart(2, '0')).join(':');
+  }
+  const timers = ['t1', 't2', 't3', 't5', 't6'];
+  const times = {};
+  timers.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) times[id] = parseTime(el.textContent);
+  });
+  setInterval(() => {
+    timers.forEach(id => {
+      if (times[id] !== undefined) {
+        times[id]--;
+        const el = document.getElementById(id);
+        if (el) {
+          el.textContent = formatTime(times[id]);
+          if (times[id] < 1800) el.classList.add('hot');
+        }
+      }
+    });
+  }, 1000);
+
+  // ─── FADE IN ON SCROLL ───
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // ════════════════════════════════════════════════════════
+  //  CONFIG — update this to your server URL when deployed
+  // ════════════════════════════════════════════════════════
+  const API_BASE = window.location.origin; // auto-detects: localhost or your live domain
+
+  // ─── OTP SYSTEM (Real API) ───────────────────────────────
+  let resendCountdown;
+
+  async function sendOTP() {
+    const mobile = document.getElementById('regMobile').value.trim();
+    const name   = document.getElementById('regFirstName').value.trim();
+    if (!name)                       { showToast('⚠️ Please enter your first name first.'); return; }
+    if (!/^\d{10}$/.test(mobile))   { showToast('⚠️ Enter a valid 10-digit mobile number.'); return; }
+
+    // Show loading on button
+    const btn = document.getElementById('sendOtpBtn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    try {
+      const res  = await fetch(`${API_BASE}/api/otp/send`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ mobile, name })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Move to OTP step
+        document.getElementById('regStep1').style.display = 'none';
+        document.getElementById('regStep2').style.display = 'block';
+        document.getElementById('otpMobileDisplay').textContent = '+91 ' + mobile;
+        document.getElementById('otpError').style.display   = 'none';
+        document.getElementById('otpSuccess').style.display = 'none';
+        document.getElementById('verifyBtn').disabled = false;
+        for (let i = 0; i < 6; i++) { const b = document.getElementById('otp'+i); b.value=''; b.className='otp-box'; }
+        document.getElementById('otp0').focus();
+        startResendTimer(30);
+
+        // Show debug OTP in development (remove in production)
+        if (data.debug_otp) {
+          document.getElementById('devOtpDisplay').textContent = data.debug_otp;
+          document.getElementById('devHint').style.display = 'block';
+        } else {
+          document.getElementById('devHint').style.display = 'none';
+        }
+
+        showToast('📱 OTP sent to +91 ' + mobile + '! Check your SMS.');
+      } else {
+        showToast('❌ ' + (data.message || 'Failed to send OTP.'));
+      }
+    } catch (err) {
+      showToast('❌ Server error. Please check your connection.');
+      console.error(err);
+    } finally {
+      btn.textContent = 'Send OTP';
+      btn.disabled = false;
+    }
+  }
+
+  function otpInput(idx) {
+    const box = document.getElementById('otp'+idx);
+    box.value = box.value.replace(/\D/g,'').slice(-1);
+    box.classList.toggle('filled', box.value !== '');
+    if (box.value && idx < 5) document.getElementById('otp'+(idx+1)).focus();
+  }
+
+  function otpKey(e, idx) {
+    if (e.key === 'Backspace' && !document.getElementById('otp'+idx).value && idx > 0)
+      document.getElementById('otp'+(idx-1)).focus();
+  }
+
+  async function verifyOTP() {
+    const mobile  = document.getElementById('regMobile').value.trim();
+    const entered = [0,1,2,3,4,5].map(i => document.getElementById('otp'+i).value).join('');
+    if (entered.length < 6) { showToast('⚠️ Please enter all 6 digits.'); return; }
+
+    const btn = document.getElementById('verifyBtn');
+    btn.textContent = 'Verifying…';
+    btn.disabled = true;
+
+    try {
+      const res  = await fetch(`${API_BASE}/api/otp/verify`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ mobile, otp: entered })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // ✅ Verified
+        for (let i=0;i<6;i++) document.getElementById('otp'+i).className='otp-box ok';
+        document.getElementById('otpError').style.display   = 'none';
+        document.getElementById('otpSuccess').style.display = 'block';
+        document.getElementById('devHint').style.display    = 'none';
+        // Save token (use properly in production)
+        if (data.token) localStorage.setItem('bw_token', data.token);
+        setTimeout(() => { closeModal(); showToast('🎉 Welcome to BidWheels! Account created successfully.'); }, 1500);
+      } else {
+        // ❌ Wrong OTP
+        for (let i=0;i<6;i++) document.getElementById('otp'+i).className='otp-box error';
+        document.getElementById('otpError').style.display = 'block';
+        document.getElementById('otpError').textContent = '❌ ' + (data.message || 'Incorrect OTP. Try again.');
+        setTimeout(() => {
+          for(let i=0;i<6;i++){document.getElementById('otp'+i).className='otp-box';document.getElementById('otp'+i).value='';}
+          document.getElementById('otp0').focus();
+          btn.disabled = false;
+          btn.textContent = 'Verify & Create Account';
+        }, 700);
+        return;
+      }
+    } catch (err) {
+      showToast('❌ Server error. Please try again.');
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = 'Verify & Create Account';
+    }
+  }
+
+  async function resendOTP() {
+    const mobile = document.getElementById('regMobile').value.trim();
+    const name   = document.getElementById('regFirstName').value.trim();
+    try {
+      const res  = await fetch(`${API_BASE}/api/otp/send`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ mobile, name })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.debug_otp) document.getElementById('devOtpDisplay').textContent = data.debug_otp;
+        for (let i=0;i<6;i++){const b=document.getElementById('otp'+i);b.value='';b.className='otp-box';}
+        document.getElementById('otpError').style.display='none';
+        document.getElementById('otp0').focus();
+        startResendTimer(30);
+        showToast('📱 New OTP sent to +91 ' + mobile + '!');
+      } else {
+        showToast('❌ ' + (data.message || 'Failed to resend OTP.'));
+      }
+    } catch(err) {
+      showToast('❌ Server error. Please try again.');
+    }
+  }
+
+  function startResendTimer(sec) {
+    clearInterval(resendCountdown);
+    const link=document.getElementById('resendLink'), timer=document.getElementById('resendTimer');
+    link.style.display='none'; timer.textContent=' Resend in '+sec+'s';
+    resendCountdown = setInterval(() => {
+      sec--; timer.textContent=' Resend in '+sec+'s';
+      if(sec<=0){clearInterval(resendCountdown);timer.textContent='';link.style.display='inline';}
+    }, 1000);
+  }
+
+  function goBackToStep1() {
+    document.getElementById('regStep2').style.display='none';
+    document.getElementById('regStep1').style.display='block';
+    clearInterval(resendCountdown);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  RAZORPAY PAYMENT (Real)
+  // ════════════════════════════════════════════════════════
+  async function payForLot(lotId, lotName, amountINR) {
+    showToast('💳 Initiating payment…');
+    try {
+      // Step 1: Create order on our backend
+      const res   = await fetch(`${API_BASE}/api/payment/create-order`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          amount:  amountINR * 100, // convert ₹ to paise
+          lotId:   lotId,
+          lotName: lotName
+        })
+      });
+      const order = await res.json();
+      if (!order.success) { showToast('❌ Could not create payment. ' + order.message); return; }
+
+      // Step 2: Open Razorpay checkout
+      const options = {
+        key:         order.key,
+        amount:      order.amount,
+        currency:    order.currency,
+        name:        'BidWheels India',
+        description: `Bid for: ${lotName}`,
+        order_id:    order.orderId,
+        image:       '', // Add your logo URL here
+        prefill: {
+          name:    '', // Fill from user profile if logged in
+          email:   '',
+          contact: ''
+        },
+        notes: { lotId: lotId },
+        theme: { color: '#FF6B00' },
+        handler: async function (response) {
+          // Step 3: Verify payment on our backend
+          const vRes  = await fetch(`${API_BASE}/api/payment/verify`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature:  response.razorpay_signature
+            })
+          });
+          const vData = await vRes.json();
+          if (vData.success) {
+            showToast('✅ Payment successful! Lot ' + lotId + ' is yours. Payment ID: ' + response.razorpay_payment_id);
+          } else {
+            showToast('❌ Payment verification failed. Contact support with Payment ID: ' + response.razorpay_payment_id);
+          }
+        },
+        modal: {
+          ondismiss: function() { showToast('Payment cancelled. You can try again.'); }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(response) {
+        showToast('❌ Payment failed: ' + response.error.description);
+      });
+      rzp.open();
+
+    } catch (err) {
+      console.error(err);
+      showToast('❌ Payment error. Please try again.');
+    }
+  }
+
+  // Welcome toast
+  setTimeout(() => { showToast('🎉 Weekend Special: 200+ new lots added! Register now to start bidding.'); }, 2000);
+</script>
+</body>
+</html>
